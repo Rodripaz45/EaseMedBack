@@ -84,4 +84,28 @@ export const login = async (req, res) => {
     }
 };
 
+export const getById = async (req, res) => {
+    const { id } = req.query; // Obtener el ID del usuario de los parámetros de la URL
+
+    try {
+        // Realizar la consulta SQL para seleccionar el usuario por su ID
+        const { rows } = await pool.query('SELECT id, nombre, apellido, fecha_nacimiento, documento_identidad, telefono, direccion FROM pacientes WHERE id = $1', [id]);
+
+        // Verificar si se encontró algún usuario con el ID proporcionado
+        if (rows.length > 0) {
+            const pacientes = rows[0]; // Obtener el primer usuario encontrado (debería ser único por ID)
+
+            res.send(pacientes); // Enviar el usuario como respuesta
+        } else {
+            // No se encontró ningún usuario con ese ID
+            res.status(404).send('Usuario no encontrado');
+        }
+    } catch (error) {
+        // Manejo de errores
+        console.error('Error en la consulta SQL:', error);
+        res.status(500).send('Error en el servidor');
+    }
+};
+
+
 

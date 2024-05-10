@@ -105,3 +105,21 @@ export const getCitasDelDia = async (req, res) => {
         res.status(500).send('Error en el servidor');
     }
 };
+
+export const deleteCita = async (req, res) => {
+    const { id } = req.params; // Suponiendo que el ID de la cita se pasa como parámetro en la URL
+
+    try {
+        // Verificar si la cita existe
+        const { rowCount } = await pool.query('DELETE FROM cita WHERE id_cita = $1', [id]);
+
+        if (rowCount === 0) {
+            return res.status(404).send({ message: 'La cita especificada no existe.' });
+        }
+
+        res.status(200).send({ message: 'Cita eliminada correctamente.' });
+    } catch (error) {
+        console.error('Error al eliminar la cita:', error);
+        res.status(500).send('Error en el servidor');
+    }
+};

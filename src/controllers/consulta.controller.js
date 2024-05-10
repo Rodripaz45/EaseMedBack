@@ -1,4 +1,3 @@
-import bcrypt from 'bcrypt';
 import { pool } from '../db.js';
 
 export const createConsulta = async (req, res) => {
@@ -17,15 +16,10 @@ export const createConsulta = async (req, res) => {
 
         const { id_medico, id_paciente } = citaData[0];
 
-        // Encriptar los datos sensibles con bcrypt
-        const hashedDiagnostico = await bcrypt.hash(diagnostico, 4);
-        const hashedRecetaMedica = await bcrypt.hash(receta_medica, 4);
-        const hashedObservaciones = await bcrypt.hash(observaciones, 4);
-
-        // Insertar la consulta en la base de datos con los datos encriptados y los IDs obtenidos
+        // Insertar la consulta en la base de datos con los datos y los IDs obtenidos
         const { rows } = await pool.query(
             'INSERT INTO consulta (id_cita, id_medico, id_paciente, diagnostico, receta_medica, observaciones) VALUES ($1, $2, $3, $4, $5, $6) RETURNING id_cita, id_medico, id_paciente, fecha',
-            [id_cita, id_medico, id_paciente, hashedDiagnostico, hashedRecetaMedica, hashedObservaciones]
+            [id_cita, id_medico, id_paciente, diagnostico, receta_medica, observaciones]
         );
 
         const consultaCreated = rows[0];
@@ -35,13 +29,6 @@ export const createConsulta = async (req, res) => {
         console.error('Error al insertar en la base de datos:', error);
         res.status(500).send('Error en el servidor');
     }
-};
-
-
-const desencriptarCampo = async (valorEncriptado) => {
-    const desencriptado = await bcrypt.compare(valorEncriptado, valorEncriptado);
-
-    return desencriptado;
 };
 
 export const getConsultasPorPaciente = async (req, res) => {
@@ -55,25 +42,7 @@ export const getConsultasPorPaciente = async (req, res) => {
             [id]
         );
 
-        // Desencriptar los campos necesarios
-        const citasDesencriptadas = rows.map(async (cita) => {
-            const { diagnostico, receta_medica, observaciones } = cita;
-            const diagnosticoDesencriptado = await desencriptarCampo(diagnostico);
-            const recetaMedicaDesencriptada = await desencriptarCampo(receta_medica);
-            const observacionesDesencriptadas = await desencriptarCampo(observaciones);
-
-            return {
-                ...cita,
-                diagnostico: diagnosticoDesencriptado,
-                receta_medica: recetaMedicaDesencriptada,
-                observaciones: observacionesDesencriptadas,
-            };
-        });
-
-        // Esperar a que se completen todas las desencripciones
-        const citasDesencriptadasCompletas = await Promise.all(citasDesencriptadas);
-
-        res.status(200).json(citasDesencriptadasCompletas);
+        res.status(200).json(rows);
     } catch (error) {
         console.error('Error al obtener las consultas del paciente:', error);
         res.status(500).send('Error en el servidor');

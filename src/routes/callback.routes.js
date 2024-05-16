@@ -1,8 +1,8 @@
 import { Router } from 'express';
-import { handlePaymentCallback } from '../controllers/callback.controller.js';
+import { confirmarPago } from '../controllers/callback.controller.js';
 
 const router = Router();
 
-router.post('/callback', handlePaymentCallback);
+router.post('/callback', confirmarPago);
 
 export default router;

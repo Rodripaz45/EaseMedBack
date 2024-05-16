@@ -5,7 +5,7 @@ import pacienteroutes from "./routes/paciente.routes.js";
 import medicoRoutes from "./routes/medico.routes.js";
 import citaRoutes from "./routes/cita.routes.js";
 import consultaRoutes from "./routes/consulta.routes.js";
-import callbackRoutes from "./routes/callback.routes.js"; 
+import callbackRoutes from "./routes/callback.routes.js";
 const app = express();
 
 app.use(express.json());

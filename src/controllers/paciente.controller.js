@@ -66,9 +66,9 @@ export const login = async (req, res) => {
                     direccion: user.direccion
                 };
 
-                const token = generateToken(usuarioToken);
 
-                res.send({token: token, id: user.id});
+
+                res.send(usuarioToken);
             } else {
                 // Si las contraseñas no coinciden, devuelve un mensaje de error
                 res.status(404).send('Credenciales incorrectas');
